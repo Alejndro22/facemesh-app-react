@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@tensorflow/tfjs-backend-webgl": "^3.21.0",
+    "@tensorflow/tfjs-converter": "^3.21.0",
+    "@tensorflow/tfjs-node": "^3.21.1"
+  }
+}

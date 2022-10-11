@@ -4,9 +4,12 @@ const PictureContext = createContext();
 
 const PictureProvider = ({ children }) => {
   const [picture, setPicture] = useState("");
+  const [pictureMesh, setPictureMesh] = useState("");
 
   return (
-    <PictureContext.Provider value={{ picture, setPicture }}>
+    <PictureContext.Provider
+      value={{ picture, setPicture, pictureMesh, setPictureMesh }}
+    >
       {children}
     </PictureContext.Provider>
   );

@@ -1,4 +1,5 @@
 import React, { useRef, useCallback } from "react";
+import { useEffect } from "react";
 import Webcam from "react-webcam";
 import usePicture from "../hooks/usePicture";
 
@@ -15,6 +16,7 @@ const Photo = () => {
     const pictureSrc = webcamRef.current.getScreenshot();
     setPicture(pictureSrc);
   });
+
   return (
     <div>
       <h2>Fase inicial: Tomar foto</h2>
