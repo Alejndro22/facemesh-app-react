@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import usePicture from "../hooks/usePicture";
 import * as faceLandmarksDetection from "@tensorflow-models/face-landmarks-detection";
-import "@tensorflow/tfjs-core";
+import * as tf from "@tensorflow/tfjs";
+// import "@tensorflow/tfjs-core";
 // Register WebGL backend.
-import "@tensorflow/tfjs-backend-webgl";
+// import "@tensorflow/tfjs-backend-webgl";
+
 import "@mediapipe/face_mesh";
 import { useRef } from "react";
 import { drawMesh } from "../utilities";
@@ -69,8 +71,9 @@ export const Facemesh = () => {
       detectorConfig
     );
     const faces = await detector.estimateFaces(image);
-    setLoading(false);
+
     console.log(faces);
+    detectEyesShape();
     // canvasRef.current.width = 400;
     // canvasRef.current.height = 400;
     const eyesCoords = calc_eyes_box(faces[0].keypoints);
@@ -98,6 +101,16 @@ export const Facemesh = () => {
       mouthCoords[2] - mouthCoords[3]
     );
     ctx.stroke();
+    setLoading(false);
+  };
+
+  const detectEyesShape = async () => {
+    const model = await tf.loadLayersModel(
+      "https://firebasestorage.googleapis.com/v0/b/impulso-buzzer-beaters.appspot.com/o/models%2Fmodel.json?alt=media&token=7334c2a1-7621-4023-bf59-e15ba689ce3b"
+    );
+    const example = tf.FromPixels(picture); // for example
+    const prediction = model.predict(example);
+    console.log(prediction);
   };
 
   useEffect(() => {
