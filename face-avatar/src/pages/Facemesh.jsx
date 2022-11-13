@@ -170,7 +170,7 @@ export const Facemesh = () => {
     canvasUploadRefEyes.current.width = 64;
     canvasUploadRefEyes.current.height = 32;
     ctx3 = canvasUploadRefEyes.current.getContext("2d");
-    // detect(img1, ctx, ctx2, ctx3);
+    detect(img1, ctx, ctx2, ctx3);
   }, []);
 
   return (
