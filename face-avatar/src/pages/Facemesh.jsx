@@ -9,11 +9,20 @@ import * as tf from "@tensorflow/tfjs";
 import "@mediapipe/face_mesh";
 import { useRef } from "react";
 import { drawMesh } from "../utilities";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { storage } from "../firebase/client";
 
 export const Facemesh = () => {
   const { picture, pictureMesh, setPictureMesh } = usePicture();
   const [loading, setLoading] = useState(false);
+  let [ctx, setCtx] = useState();
+  let [ctx2, setCtx2] = useState();
+  let [ctx3, setCtx3] = useState();
   const canvasRef = useRef();
+  const canvasUploadRef = useRef();
+  const canvasUploadRefEyes = useRef();
+  var today = new Date();
+
   const img1 = new Image(); // Image constructor
   img1.src = picture;
   img1.height = 400;
@@ -60,7 +69,7 @@ export const Facemesh = () => {
   };
 
   //cargar el facemesh
-  const detect = async (image, ctx) => {
+  const detect = async (image, ctx, ctxFirebase, ctxFirebaseEyes) => {
     setLoading(true);
     const model = faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh;
     const detectorConfig = {
@@ -71,14 +80,25 @@ export const Facemesh = () => {
       detectorConfig
     );
     const faces = await detector.estimateFaces(image);
-
     console.log(faces);
-    detectEyesShape();
-    // canvasRef.current.width = 400;
-    // canvasRef.current.height = 400;
     const eyesCoords = calc_eyes_box(faces[0].keypoints);
     const mouthCoords = calc_mouth_box(faces[0].keypoints);
-    // const ctx = canvasRef.current.getContext("2d");
+    cropImg(
+      ctxFirebase,
+      faces[0].box.xMin,
+      faces[0].box.yMin,
+      faces[0].box.width,
+      faces[0].box.height
+    );
+
+    cropEyes(
+      ctxFirebaseEyes,
+      eyesCoords[1],
+      eyesCoords[3],
+      eyesCoords[0] - eyesCoords[1],
+      eyesCoords[2] - eyesCoords[3]
+    );
+
     //      DRAW RECTANGLE FOR WHOLE FACE
     ctx.rect(
       faces[0].box.xMin,
@@ -104,24 +124,57 @@ export const Facemesh = () => {
     setLoading(false);
   };
 
-  const detectEyesShape = async () => {
-    const model = await tf.loadLayersModel(
-      "https://firebasestorage.googleapis.com/v0/b/impulso-buzzer-beaters.appspot.com/o/models%2Fmodel.json?alt=media&token=7334c2a1-7621-4023-bf59-e15ba689ce3b"
-    );
-    const example = tf.FromPixels(picture); // for example
-    const prediction = model.predict(example);
-    console.log(prediction);
+  const cropImg = async (ctxFirebase, sx, sy, sWidth, sHeight) => {
+    await ctxFirebase.drawImage(img1, sx, sy, sWidth, sHeight, 0, 0, 64, 64);
+    canvasUploadRef.current.toBlob((blob) => {
+      uploadImage(blob, "face");
+    }, "image/jpeg");
+  };
+
+  const cropEyes = (ctxFirebaseEyes, sx, sy, sWidth, sHeight) => {
+    ctxFirebaseEyes.drawImage(img1, sx, sy, sWidth, sHeight, 0, 0, 64, 32);
+    canvasUploadRefEyes.current.toBlob((blob) => {
+      uploadImage(blob, "eyes");
+    }, "image/jpeg");
+  };
+
+  const uploadImage = async (blob, type) => {
+    const date =
+      today.getFullYear() +
+      "-" +
+      (today.getMonth() + 1) +
+      "-" +
+      today.getDate() +
+      "-" +
+      today.getHours() +
+      "-" +
+      today.getMinutes() +
+      "-" +
+      today.getSeconds();
+    const storageRef = ref(storage, `models/${type}/${date}.jpg`);
+    await uploadBytes(storageRef, blob).then((snapshot) => {
+      console.log("Uploaded a blob or file! type: " + type);
+      getDownloadURL(snapshot.ref).then((url) => console.log(url));
+    });
   };
 
   useEffect(() => {
     canvasRef.current.width = 400;
     canvasRef.current.height = 400;
-    const ctx = canvasRef.current.getContext("2d");
-    detect(img1, ctx);
+    ctx = canvasRef.current.getContext("2d");
+
+    canvasUploadRef.current.width = 64;
+    canvasUploadRef.current.height = 64;
+    ctx2 = canvasUploadRef.current.getContext("2d");
+
+    canvasUploadRefEyes.current.width = 64;
+    canvasUploadRefEyes.current.height = 32;
+    ctx3 = canvasUploadRefEyes.current.getContext("2d");
+    // detect(img1, ctx, ctx2, ctx3);
   }, []);
 
   return (
-    <div>
+    <div className="flex flex-col items-center">
       {loading ? (
         <p>Cargando...</p>
       ) : (
@@ -143,7 +196,22 @@ export const Facemesh = () => {
           width: 400,
         }}
       ></canvas>
-      <div></div>
+      <div>
+        <canvas
+          ref={canvasUploadRef}
+          style={{
+            height: 64,
+            width: 64,
+          }}
+        ></canvas>
+        <canvas
+          ref={canvasUploadRefEyes}
+          style={{
+            height: 32,
+            width: 64,
+          }}
+        ></canvas>
+      </div>
     </div>
   );
 };
