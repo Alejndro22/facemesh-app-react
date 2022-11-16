@@ -100,26 +100,44 @@ export const Facemesh = () => {
     );
 
     //      DRAW RECTANGLE FOR WHOLE FACE
-    ctx.rect(
-      faces[0].box.xMin,
-      faces[0].box.yMin,
-      faces[0].box.width,
-      faces[0].box.height
-    );
+    // ctx.rect(
+    //   faces[0].box.xMin,
+    //   faces[0].box.yMin,
+    //   faces[0].box.width,
+    //   faces[0].box.height
+    // );
+    var imageObj1 = new Image();
+    imageObj1.src = 'Assets/Cuadrada/cuadrada-tez1.png'
+    imageObj1.onload = function() {
+    ctx.drawImage(imageObj1,faces[0].box.xMin,faces[0].box.yMin,faces[0].box.width,faces[0].box.height);
+    }
+
     //      DRAW RECTANGLE FOR EYES
-    ctx.rect(
-      eyesCoords[1],
-      eyesCoords[3],
-      eyesCoords[0] - eyesCoords[1],
-      eyesCoords[2] - eyesCoords[3]
-    );
+    // ctx.rect(
+    //   eyesCoords[1],
+    //   eyesCoords[3],
+    //   eyesCoords[0] - eyesCoords[1],
+    //   eyesCoords[2] - eyesCoords[3]
+    // );
+    var imageObj2 = new Image();
+    imageObj2.src = 'Assets/Ojos/ojo-redondos.png'
+    imageObj2.onload = function() {
+    ctx.drawImage(imageObj2,eyesCoords[1],eyesCoords[3],eyesCoords[0] - eyesCoords[1],eyesCoords[2] - eyesCoords[3]);
+    }
+
     //      DRAW RECTANGLE FOR MOUTH
-    ctx.rect(
-      mouthCoords[1],
-      mouthCoords[3],
-      mouthCoords[0] - mouthCoords[1],
-      mouthCoords[2] - mouthCoords[3]
-    );
+    // ctx.rect(
+    //   mouthCoords[1],
+    //   mouthCoords[3],
+    //   mouthCoords[0] - mouthCoords[1],
+    //   mouthCoords[2] - mouthCoords[3]
+    // );
+    var imageObj3 = new Image();
+    imageObj3.src = 'Assets/Bocas/sonrisa cerrada.png'
+    imageObj3.onload = function() {
+    ctx.drawImage(imageObj3,mouthCoords[1],mouthCoords[3],mouthCoords[0] - mouthCoords[1],mouthCoords[2] - mouthCoords[3]);
+    }
+
     ctx.stroke();
     setLoading(false);
   };
