@@ -1,25 +1,23 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import Carousel from "../components/Carousel";
 import Photo from "../components/Photo";
 import usePicture from "../hooks/usePicture";
 
 export const Main = () => {
-  const { picture } = usePicture();
   const newTo = {
-    pathname: "/facemesh",
-    pic: picture,
+    pathname: "/takepic",
   };
   return (
     <div className="App flex flex-col justify-center items-center">
-      <Photo />
-      <button
-        className="relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800"
-        onClick={() => {}}
-      >
-        <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-          <Link to={newTo}>Home</Link>
-        </span>
-      </button>
+      <div className="">
+        <Carousel />
+      </div>
+      <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white rounded-md group-hover:bg-opacity-0">
+        <Link className="font-bold text-2xl" to={newTo}>
+          CREA TU AVATAR
+        </Link>
+      </span>
     </div>
   );
 };

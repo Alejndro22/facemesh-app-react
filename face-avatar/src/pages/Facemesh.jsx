@@ -18,6 +18,11 @@ export const Facemesh = () => {
   let [ctx, setCtx] = useState();
   let [ctx2, setCtx2] = useState();
   let [ctx3, setCtx3] = useState();
+  let [urlEyes, setUrlEyes] = useState("");
+  let [urlFace, setUrlFace] = useState("");
+  let [eyeShape, setEyeShape] = useState("");
+  let [mouthShape, setMouthShape] = useState("");
+  let [faceShape, setFaceShape] = useState("");
   const canvasRef = useRef();
   const canvasUploadRef = useRef();
   const canvasUploadRefEyes = useRef();
@@ -99,6 +104,8 @@ export const Facemesh = () => {
       eyesCoords[2] - eyesCoords[3]
     );
 
+    getDetectionType();
+
     //      DRAW RECTANGLE FOR WHOLE FACE
     // ctx.rect(
     //   faces[0].box.xMin,
@@ -107,10 +114,16 @@ export const Facemesh = () => {
     //   faces[0].box.height
     // );
     var imageObj1 = new Image();
-    imageObj1.src = 'Assets/Cuadrada/cuadrada-tez1.png'
-    imageObj1.onload = function() {
-    ctx.drawImage(imageObj1,faces[0].box.xMin,faces[0].box.yMin,faces[0].box.width,faces[0].box.height);
-    }
+    imageObj1.src = "Assets/Cuadrada/cuadrada-tez1.png";
+    imageObj1.onload = function () {
+      ctx.drawImage(
+        imageObj1,
+        faces[0].box.xMin,
+        faces[0].box.yMin,
+        faces[0].box.width,
+        faces[0].box.height
+      );
+    };
 
     //      DRAW RECTANGLE FOR EYES
     // ctx.rect(
@@ -120,10 +133,16 @@ export const Facemesh = () => {
     //   eyesCoords[2] - eyesCoords[3]
     // );
     var imageObj2 = new Image();
-    imageObj2.src = 'Assets/Ojos/ojo-redondos.png'
-    imageObj2.onload = function() {
-    ctx.drawImage(imageObj2,eyesCoords[1],eyesCoords[3],eyesCoords[0] - eyesCoords[1],eyesCoords[2] - eyesCoords[3]);
-    }
+    imageObj2.src = "Assets/Ojos/ojo-redondos.png";
+    imageObj2.onload = function () {
+      ctx.drawImage(
+        imageObj2,
+        eyesCoords[1],
+        eyesCoords[3],
+        eyesCoords[0] - eyesCoords[1],
+        eyesCoords[2] - eyesCoords[3]
+      );
+    };
 
     //      DRAW RECTANGLE FOR MOUTH
     // ctx.rect(
@@ -133,10 +152,16 @@ export const Facemesh = () => {
     //   mouthCoords[2] - mouthCoords[3]
     // );
     var imageObj3 = new Image();
-    imageObj3.src = 'Assets/Bocas/sonrisa cerrada.png'
-    imageObj3.onload = function() {
-    ctx.drawImage(imageObj3,mouthCoords[1],mouthCoords[3],mouthCoords[0] - mouthCoords[1],mouthCoords[2] - mouthCoords[3]);
-    }
+    imageObj3.src = "Assets/Bocas/sonrisa cerrada.png";
+    imageObj3.onload = function () {
+      ctx.drawImage(
+        imageObj3,
+        mouthCoords[1],
+        mouthCoords[3],
+        mouthCoords[0] - mouthCoords[1],
+        mouthCoords[2] - mouthCoords[3]
+      );
+    };
 
     ctx.stroke();
     setLoading(false);
@@ -172,8 +197,39 @@ export const Facemesh = () => {
     const storageRef = ref(storage, `models/${type}/${date}.jpg`);
     await uploadBytes(storageRef, blob).then((snapshot) => {
       console.log("Uploaded a blob or file! type: " + type);
-      getDownloadURL(snapshot.ref).then((url) => console.log(url));
+      if (type === "face") {
+        getDownloadURL(snapshot.ref).then((url) => setUrlFace(url));
+      } else {
+        getDownloadURL(snapshot.ref).then((url) => setUrlEyes(url));
+      }
     });
+  };
+
+  const getDetectionType = async () => {
+    try {
+      const message = await fetch(
+        "https://portcrg-dev.onrender.com/api/courses/unassign",
+        {
+          method: "GET",
+          headers: {
+            "Content-type": "application/json",
+          },
+          body: {
+            url1: urlFace,
+            url2: urlEyes,
+          },
+        }
+      ).then(function (response) {
+        setEyeShape(response.body.face);
+        console.log(response.body.face);
+        setMouthShape(response.body.smile);
+        console.log(response.body.smile);
+        setFaceShape(response.body.face);
+        console.log(response.body.face);
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
@@ -197,6 +253,7 @@ export const Facemesh = () => {
         <p>Cargando...</p>
       ) : (
         <img
+          className=""
           src={picture}
           alt="imagen del contexto"
           style={{
@@ -217,6 +274,7 @@ export const Facemesh = () => {
       <div>
         <canvas
           ref={canvasUploadRef}
+          className=""
           style={{
             height: 64,
             width: 64,
@@ -224,6 +282,7 @@ export const Facemesh = () => {
         ></canvas>
         <canvas
           ref={canvasUploadRefEyes}
+          className=""
           style={{
             height: 32,
             width: 64,

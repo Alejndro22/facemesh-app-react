@@ -1,9 +1,11 @@
 import React from "react";
+import { NavBarComponent } from "../NavBarComponent";
 
 const Layout = ({ children }) => {
   return (
     <>
-      <main className="flex flex-col justify-between items-center h-screen">
+      <NavBarComponent />
+      <main className="mt- flex flex-col justify-between items-center h-screen">
         {children}
       </main>
     </>
